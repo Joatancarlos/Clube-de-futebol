@@ -1,5 +1,5 @@
 import { Model, QueryInterface, DataTypes } from 'sequelize';
-import TeamsModel from '../../Interfaces/TeamsModel';
+import TeamsModel from '../../Interfaces/ITeamsl';
 
 
 export default {
