@@ -12,4 +12,9 @@ router.get(
   (req: Request, res: Response) => teamsController.getAllBooks(req, res),
 );
 
+router.get(
+  '/:id',
+  (req: Request, res: Response) => teamsController.getTeamById(req, res),
+);
+
 export default router;

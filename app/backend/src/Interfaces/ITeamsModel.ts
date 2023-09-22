@@ -1,5 +1,6 @@
-import TeamsModel from './ITeamsl';
+import ITeams from './ITeamsl';
 
 export default interface ITeamsModel {
-  getAllTeams(): Promise<TeamsModel[]>,
+  getAllTeams(): Promise<ITeams[]>,
+  getTeamById(id: ITeams['id']): Promise<ITeams | null>
 }
