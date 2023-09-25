@@ -4,42 +4,41 @@ import * as chai from 'chai';
 import chaiHttp = require('chai-http');
 
 import { app } from '../app';
-import Example from '../database/models/ExampleModel';
-
-import { Response } from 'superagent';
+import allTeams from './mocks/teams.mock';
+import Teams from '../database/models/Teams';
 
 chai.use(chaiHttp);
 
 const { expect } = chai;
 
-describe('Seu teste', () => {
-  /**
-   * Exemplo do uso de stubs com tipos
-   */
+describe('Rota Teams', () => {
+  afterEach(() => {
+    sinon.restore();
+  });
 
-  // let chaiHttpResponse: Response;
+  it('Rota Get com sucesso', async () => {
+    sinon.stub(Teams, 'findAll')
+    .resolves(allTeams.map(({ id, teamName }) => Teams.build({ id, teamName })));
 
-  // before(async () => {
-  //   sinon
-  //     .stub(Example, "findOne")
-  //     .resolves({
-  //       ...<Seu mock>
-  //     } as Example);
-  // });
+    const response = await chai.request(app).get('/teams');
+    expect(response.status).to.be.eq(200);
+    expect(response.body).to.be.deep.eq(allTeams);
+  });
 
-  // after(()=>{
-  //   (Example.findOne as sinon.SinonStub).restore();
-  // })
+  it('Rota Get/:id com sucesso', async () => {
+    sinon.stub(Teams, 'findByPk').resolves(Teams.build(allTeams[6]));
 
-  // it('...', async () => {
-  //   chaiHttpResponse = await chai
-  //      .request(app)
-  //      ...
+    const response = await chai.request(app).get('/teams/7');
+    expect(response.status).to.be.eq(200);
+    expect(response.body).to.be.deep.eq(allTeams[6]);
 
-  //   expect(...)
-  // });
+  });
 
-  it('Seu sub-teste', () => {
-    expect(false).to.be.eq(true);
+  it('Rota Get/:id retorna uma mensagem de erro caso não ache o time', async () => {
+    sinon.stub(Teams, 'findByPk').resolves(null);
+
+    const response = await chai.request(app).get('/teams/20');
+    expect(response.status).to.be.eq(404);
+    expect(response.body).to.be.deep.equal({ message: 'team not found' });
   });
 });
