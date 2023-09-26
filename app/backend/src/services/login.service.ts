@@ -6,6 +6,7 @@ import Users from '../database/models/Users';
 
 export default class LoginService {
   private model = Users;
+  private decoded = new Token();
 
   public async checkLogin(body: ILogin): Promise<ServiceResponse<Users>> {
     const { email, password } = body;
@@ -21,5 +22,14 @@ export default class LoginService {
       username: user.username,
     });
     return { status: 200, data: { token } };
+  }
+
+  public checkToken(token: string): ServiceResponse<Users> {
+    const decoded = this.decoded.verify(token);
+    // const user = await this.model.findOne({ where: { id: decoded.id } });
+    // if (!user) {
+    //   return { status: 401, data: { message: 'Token must be a valid token' } };
+    // }
+    return { status: 200, data: { role: decoded.role } };
   }
 }

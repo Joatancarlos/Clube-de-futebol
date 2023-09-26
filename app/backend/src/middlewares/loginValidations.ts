@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
+import Token from '../auth/Token';
 
 class loginValidations {
   static validateLogin(req: Request, res: Response, next: NextFunction): Response | void {
@@ -26,6 +27,18 @@ class loginValidations {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
+    next();
+  }
+
+  static validateToken(req: Request, res: Response, next: NextFunction): Response | void {
+    const token = req.headers.authorization;
+    if (!token) {
+      return res.status(401).json({ message: 'Token not found' });
+    }
+    const decoded = new Token().verify(token);
+    if (!decoded) {
+      return res.status(401).json({ message: 'Token must be a valid token' });
+    }
     next();
   }
 }

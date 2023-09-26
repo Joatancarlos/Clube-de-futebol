@@ -1,3 +1,4 @@
+import { log } from 'console';
 import * as jwt from 'jsonwebtoken';
 
 type TokenPayload = {
@@ -16,7 +17,12 @@ export default class Token {
   }
 
   verify(token: string): TokenPayload {
-    const data = jwt.verify(token, this.secret) as TokenPayload;
+    const bearerToken = token.replace('Bearer ', '');
+    log(bearerToken);
+    const data = jwt.verify(bearerToken, this.secret, (err, decoded) => {
+      if (err) return null;
+      return decoded;
+    }) as unknown as TokenPayload;
     return data;
   }
 }
