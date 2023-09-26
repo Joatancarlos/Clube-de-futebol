@@ -26,10 +26,6 @@ export default class LoginService {
 
   public checkToken(token: string): ServiceResponse<Users> {
     const decoded = this.decoded.verify(token);
-    // const user = await this.model.findOne({ where: { id: decoded.id } });
-    // if (!user) {
-    //   return { status: 401, data: { message: 'Token must be a valid token' } };
-    // }
     return { status: 200, data: { role: decoded.role } };
   }
 }
