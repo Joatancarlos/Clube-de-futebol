@@ -7,8 +7,8 @@ import {
 import db from '.';
 // import OtherModel from './OtherModel';
 
-class Example extends Model<InferAttributes<Example>,
-InferCreationAttributes<Example>> {
+class Users extends Model<InferAttributes<Users>,
+InferCreationAttributes<Users>> {
   declare id: number;
   declare username: string;
   declare role: string;
@@ -16,7 +16,7 @@ InferCreationAttributes<Example>> {
   declare password: string;
 }
 
-Example.init({
+Users.init({
   id: {
     type: DataTypes.INTEGER,
     allowNull: false,
@@ -51,10 +51,10 @@ Example.init({
   * Associations 1:N devem ficar em uma das instâncias de modelo
   * */
 
-// OtherModel.belongsTo(Example, { foreignKey: 'campoA', as: 'campoEstrangeiroA' });
-// OtherModel.belongsTo(Example, { foreignKey: 'campoB', as: 'campoEstrangeiroB' });
+// OtherModel.belongsTo(Users, { foreignKey: 'campoA', as: 'campoEstrangeiroA' });
+// OtherModel.belongsTo(Users, { foreignKey: 'campoB', as: 'campoEstrangeiroB' });
 
-// Example.hasMany(OtherModel, { foreignKey: 'campoC', as: 'campoEstrangeiroC' });
-// Example.hasMany(OtherModel, { foreignKey: 'campoD', as: 'campoEstrangeiroD' });
+// Users.hasMany(OtherModel, { foreignKey: 'campoC', as: 'campoEstrangeiroC' });
+// Users.hasMany(OtherModel, { foreignKey: 'campoD', as: 'campoEstrangeiroD' });
 
-export default Example;
+export default Users;

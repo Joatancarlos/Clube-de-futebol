@@ -7,13 +7,13 @@ import {
 import db from '.';
 // import OtherModel from './OtherModel';
 
-class Example extends Model<InferAttributes<Example>,
-InferCreationAttributes<Example>> {
+class Teams extends Model<InferAttributes<Teams>,
+InferCreationAttributes<Teams>> {
   declare id: number;
   declare teamName: string;
 }
 
-Example.init({
+Teams.init({
   id: {
     type: DataTypes.INTEGER,
     allowNull: false,
@@ -42,4 +42,4 @@ Example.init({
 // Example.hasMany(OtherModel, { foreignKey: 'campoC', as: 'campoEstrangeiroC' });
 // Example.hasMany(OtherModel, { foreignKey: 'campoD', as: 'campoEstrangeiroD' });
 
-export default Example;
+export default Teams;
