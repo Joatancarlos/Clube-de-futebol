@@ -10,7 +10,7 @@ import Teams from './Teams';
 
 class Matches extends Model<InferAttributes<Matches>,
 InferCreationAttributes<Matches>> {
-  declare id: number;
+  declare id?: number;
   declare homeTeamId: number;
   declare homeTeamGoals: number;
   declare awayTeamId: number;
@@ -62,10 +62,10 @@ Matches.init({
   * Associations 1:N devem ficar em uma das instâncias de modelo
   * */
 
-Matches.belongsTo(Teams, { foreignKey: 'homeTeamId', as: 'idHome' });
-Matches.belongsTo(Teams, { foreignKey: 'awayTeamId', as: 'idAway' });
+Matches.belongsTo(Teams, { foreignKey: 'homeTeamId', as: 'homeTeam' });
+Matches.belongsTo(Teams, { foreignKey: 'awayTeamId', as: 'awayTeam' });
 
-Teams.hasMany(Matches, { foreignKey: 'homeTeamId', as: 'idHome' });
-Teams.hasMany(Matches, { foreignKey: 'awayTeamId', as: 'idAway' });
+Teams.hasMany(Matches, { foreignKey: 'homeTeamId', as: 'homeTeam' });
+Teams.hasMany(Matches, { foreignKey: 'awayTeamId', as: 'awayTeam' });
 
 export default Matches;
