@@ -2,7 +2,7 @@
 
 export type ServiceMessage = { message: string };
 
-type ServiceResponseErrorType = 200 | 201 | 400 | 401 | 404 | 500;
+type ServiceResponseErrorType = 200 | 201 | 400 | 401 | 404 | 422 | 500;
 
 type response = { message?: string; token?: string; role?: string, data?: unknown };
 

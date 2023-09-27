@@ -5,6 +5,7 @@ import { ServiceResponse, ServiceResponseSuccess } from '../Interfaces/ServiceRe
 
 export default class MatchesService {
   private model = MatchesModel;
+  private teamModel = Teams;
 
   public async getMatches(inProgress: string): Promise<ServiceResponse<MatchesModel[]>> {
     const matches = await this.model.findAll({
@@ -49,10 +50,17 @@ export default class MatchesService {
     return { status: 200, data: { message: 'Updated' } };
   }
 
-  public async createMatch(
-    homeTeamId: number,
-    awayTeamId: number,
-  ): Promise<ServiceResponseSuccess<MatchesModel>> {
+  public async createMatch(homeTeamId: number, awayTeamId: number):
+  Promise<ServiceResponseSuccess<MatchesModel>> {
+    if (homeTeamId === awayTeamId) {
+      return { status: 422,
+        data: { message: 'It is not possible to create a match with two equal teams' } };
+    }
+    const hasTeamHome = await this.hasTeam(homeTeamId);
+    const hasTeamAway = await this.hasTeam(awayTeamId);
+    if (!hasTeamHome || !hasTeamAway) {
+      return { status: 404, data: { message: 'There is no team with such id!' } };
+    }
     const newMatches = await this.model.create({
       homeTeamId,
       awayTeamId,
@@ -60,7 +68,12 @@ export default class MatchesService {
       awayTeamGoals: 0,
       inProgress: true,
     });
-    const fodase = newMatches.toJSON() as MatchesModel;
-    return { status: 201, data: fodase };
+    return { status: 201, data: newMatches.toJSON() as MatchesModel };
+  }
+
+  public async hasTeam(id: number): Promise<boolean> {
+    const team = await this.teamModel.findByPk(id);
+    if (!team) return false;
+    return true;
   }
 }
