@@ -20,8 +20,9 @@ export default class MatchesService {
         attributes: ['teamName'],
       }],
     });
-    if (inProgress === 'true') {
-      const matchesInProgress = matches.filter((match) => match.inProgress === true);
+    if (inProgress === 'true' || inProgress === 'false') {
+      const matchesInProgress = matches
+        .filter((match) => match.inProgress === JSON.parse(inProgress));
       return { status: 200, data: matchesInProgress };
     }
     return { status: 200, data: matches };
