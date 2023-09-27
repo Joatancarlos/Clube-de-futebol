@@ -5,10 +5,11 @@ import {
   InferCreationAttributes,
 } from 'sequelize';
 import db from '.';
+import Teams from './Teams';
 // import OtherModel from './OtherModel';
 
-class Example extends Model<InferAttributes<Example>,
-InferCreationAttributes<Example>> {
+class Matches extends Model<InferAttributes<Matches>,
+InferCreationAttributes<Matches>> {
   declare id: number;
   declare homeTeamId: number;
   declare homeTeamGoals: number;
@@ -17,7 +18,7 @@ InferCreationAttributes<Example>> {
   declare inProgress: boolean;
 }
 
-Example.init({
+Matches.init({
   id: {
     type: DataTypes.INTEGER,
     allowNull: false,
@@ -51,7 +52,7 @@ Example.init({
   },
 }, {
   sequelize: db,
-  modelName: 'users',
+  modelName: 'Matches',
   timestamps: false,
   underscored: true,
 });
@@ -61,10 +62,10 @@ Example.init({
   * Associations 1:N devem ficar em uma das instâncias de modelo
   * */
 
-// OtherModel.belongsTo(Example, { foreignKey: 'campoA', as: 'campoEstrangeiroA' });
-// OtherModel.belongsTo(Example, { foreignKey: 'campoB', as: 'campoEstrangeiroB' });
+Matches.belongsTo(Teams, { foreignKey: 'homeTeamId', as: 'idHome' });
+Matches.belongsTo(Teams, { foreignKey: 'awayTeamId', as: 'idAway' });
 
-// Example.hasMany(OtherModel, { foreignKey: 'campoC', as: 'campoEstrangeiroC' });
-// Example.hasMany(OtherModel, { foreignKey: 'campoD', as: 'campoEstrangeiroD' });
+Teams.hasMany(Matches, { foreignKey: 'homeTeamId', as: 'idHome' });
+Teams.hasMany(Matches, { foreignKey: 'awayTeamId', as: 'idAway' });
 
-export default Example;
+export default Matches;
