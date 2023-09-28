@@ -1,6 +1,6 @@
 import * as jwt from 'jsonwebtoken';
 
-type TokenPayload = {
+export type TokenPayload = {
   id: number,
   email: string,
   role: string,
@@ -15,7 +15,7 @@ export default class Token {
     return token;
   }
 
-  verify(token: string): TokenPayload {
+  verify(token: string): TokenPayload | null {
     const bearerToken = token.replace('Bearer ', '');
     const data = jwt.verify(bearerToken, this.secret, (err, decoded) => {
       if (err) return null;

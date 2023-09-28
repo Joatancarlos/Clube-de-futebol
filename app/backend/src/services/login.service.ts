@@ -26,6 +26,7 @@ export default class LoginService {
 
   public checkToken(token: string): ServiceResponse<Users> {
     const decoded = this.decoded.verify(token);
+    if (!decoded) return { status: 401, data: { message: 'Invalid token' } };
     return { status: 200, data: { role: decoded.role } };
   }
 }

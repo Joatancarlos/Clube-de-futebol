@@ -90,13 +90,13 @@ describe('Rota Login', () => {
     expect(response.body).to.be.deep.eq({ message: 'Token not found' });
     })
 
-    // it('caso token seja inválido, retorna uma mensagem de erro', async () => {
-    //   sinon.stub(Token.prototype, 'verify').returns(payload)
-    //   const response = await chai.request(app).get('/login/role')
-    //     .set('authorization', `invalid token`);
+    it('caso token seja inválido, retorna uma mensagem de erro', async () => {
+      sinon.stub(Token.prototype, 'verify').returns(null)
+      const response = await chai.request(app).get('/login/role')
+        .set('authorization', `invalid token`);
 
-    // expect(response).to.have.status(401);
-    // expect(response.body).to.be.deep.eq({ message: 'Token must be a valid token' });
-    // })
+    expect(response).to.have.status(401);
+    expect(response.body).to.be.deep.eq({ message: 'Token must be a valid token' });
+    })
   })
 });
