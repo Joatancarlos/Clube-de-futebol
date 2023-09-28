@@ -11,10 +11,10 @@ const user = {
 const payload = {
   id: 1,
   role: "admin",
-  email: "validEmail@gmail.com",
+  email: "admin@admin.com",
   username: "validUsername"
 }
 
-const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJ1c2VyQHVzZXIuY29tIiwicm9sZSI6InVzZXIiLCJ1c2VybmFtZSI6IlVzZXIiLCJpYXQiOjE2OTU3NTE5NzUsImV4cCI6MTY5NjM1Njc3NX0.5aYiiKd5gz-q-NS9Ilbpc-QsbBYYut1aPU4OLGbI74I'
+const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJhZG1pbkBhZG1pbi5jb20iLCJyb2xlIjoiYWRtaW4iLCJ1c2VybmFtZSI6IkFkbWluIiwiaWF0IjoxNjk1OTM5ODMwLCJleHAiOjE2OTY1NDQ2MzB9.lEATaKlFGk2KzVn4wDdcR999HBbd8lwQ6E7zKBYR7Lc'
 
 export { user, payload, token};

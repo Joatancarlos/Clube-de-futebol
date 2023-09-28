@@ -32,8 +32,7 @@ export default class MatchesService {
     const match = await this.model.findByPk(id);
     if (!match) return { status: 404, data: { message: 'Partida não encontrada' } };
     if (!match.inProgress) return { status: 400, data: { message: 'Partida já finalizada' } };
-    match.inProgress = false;
-    await match.save();
+    await this.model.update({ inProgress: false }, { where: { id } });
     return { status: 200, data: { message: 'Finished' } };
   }
 

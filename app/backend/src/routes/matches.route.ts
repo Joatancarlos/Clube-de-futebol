@@ -12,15 +12,15 @@ router.get(
 );
 
 router.patch(
-  '/:id',
-  loginValidations.validateToken,
-  (req: Request, res: Response) => matchesController.updateMatch(req, res),
-);
-
-router.patch(
   '/:id/finish',
   loginValidations.validateToken,
   (req: Request, res: Response) => matchesController.finishMatch(req, res),
+);
+
+router.patch(
+  '/:id',
+  loginValidations.validateToken,
+  (req: Request, res: Response) => matchesController.updateMatch(req, res),
 );
 
 router.post(
