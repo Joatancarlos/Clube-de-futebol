@@ -26,31 +26,29 @@ type teamsHomeOrAway = {
 
 export default class LeaderBoardService {
   static async getLeaderBoard(homeOrAway: string): Promise<ServiceResponse<ILeaderBoardModel[]>> {
+    const teams = await this.leadBoard(homeOrAway);
+    return { status: 200, data: teams };
+  }
+
+  static async leadBoard(homeOrAway: string): Promise<ILeaderBoardModel[]> {
     const teams = await this.getTeams(homeOrAway);
     const res = teams.map((team: teamsHomeOrAway) => {
       if (team.homeTeam === undefined) throw new Error('homeTeam is undefined');
-      const totalPoints = this.getReduce(team.homeTeam, (acc, match) => (acc + LeaderBoardService
-        .getPoints(match.homeTeamGoals, match.awayTeamGoals)));
-      const totalVictories = this.getReduce(team.homeTeam, (acc, match) => (acc + LeaderBoardService
-        .getVictory(match.homeTeamGoals, match.awayTeamGoals)));
-      const totalDraws = this.getReduce(team.homeTeam, (acc, match) => (acc + LeaderBoardService
-        .getDraw(match.homeTeamGoals, match.awayTeamGoals)));
-      const totalLosses = this.getReduce(team.homeTeam, (acc, match) => (acc + LeaderBoardService
-        .getLoss(match.homeTeamGoals, match.awayTeamGoals)));
-      const goalsFavor = team.homeTeam.reduce((acc, match) => acc + match.homeTeamGoals, 0);
-      const goalsOwn = team.homeTeam.reduce((acc, match) => acc + match.awayTeamGoals, 0);
-      const totalGames = totalVictories + totalDraws + totalLosses;
-      return { name: team.teamName,
-        totalPoints,
-        totalGames,
-        totalVictories,
-        totalDraws,
-        totalLosses,
-        goalsFavor,
-        goalsOwn,
-      };
+      return {
+        name: team.teamName,
+        totalPoints: this.getReduce(team.homeTeam, (acc, match) => (acc + LeaderBoardService
+          .getPoints(match.homeTeamGoals, match.awayTeamGoals))),
+        totalVictories: this.getReduce(team.homeTeam, (acc, match) => (acc + LeaderBoardService
+          .getVictory(match.homeTeamGoals, match.awayTeamGoals))),
+        totalDraws: this.getReduce(team.homeTeam, (acc, match) => (acc + LeaderBoardService
+          .getDraw(match.homeTeamGoals, match.awayTeamGoals))),
+        totalLosses: this.getReduce(team.homeTeam, (acc, match) => (acc + LeaderBoardService
+          .getLoss(match.homeTeamGoals, match.awayTeamGoals))),
+        goalsFavor: team.homeTeam.reduce((acc, match) => acc + match.homeTeamGoals, 0),
+        goalsOwn: team.homeTeam.reduce((acc, match) => acc + match.awayTeamGoals, 0),
+        totalGames: team.homeTeam.length };
     });
-    return { status: 200, data: res };
+    return res;
   }
 
   static async getTeams(homeOrAway: string): Promise<Teams[]> {
