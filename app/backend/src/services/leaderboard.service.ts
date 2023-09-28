@@ -26,13 +26,18 @@ type teamsHomeOrAway = {
 
 export default class LeaderBoardService {
   static async getLeaderBoard(homeOrAway: string): Promise<ServiceResponse<ILeaderBoardModel[]>> {
-    const teams = await this.leadBoard(homeOrAway);
+    let teams: ILeaderBoardModel[] = [];
+    if (homeOrAway === 'home') {
+      teams = await this.getLeaderBoardHome();
+    } else {
+      teams = await this.getLeaderBoardAway();
+    }
     return { status: 200, data: teams };
   }
 
-  static async leadBoard(homeOrAway: string): Promise<ILeaderBoardModel[]> {
-    const teams = await this.getTeams(homeOrAway);
-    const res = teams.map((team: teamsHomeOrAway) => {
+  static async getLeaderBoardHome(): Promise<ILeaderBoardModel[]> {
+    const teams = await this.getTeams('home');
+    return teams.map((team: teamsHomeOrAway) => {
       if (team.homeTeam === undefined) throw new Error('homeTeam is undefined');
       return {
         name: team.teamName,
@@ -48,8 +53,47 @@ export default class LeaderBoardService {
         goalsOwn: team.homeTeam.reduce((acc, match) => acc + match.awayTeamGoals, 0),
         totalGames: team.homeTeam.length };
     });
-    return res;
   }
+
+  static async getLeaderBoardAway(): Promise<ILeaderBoardModel[]> {
+    const teams = await this.getTeams('away');
+    return teams.map((team: teamsHomeOrAway) => {
+      if (team.awayTeam === undefined) throw new Error('homeTeam is undefined aqui');
+      return {
+        name: team.teamName,
+        totalPoints: this.getReduce(team.awayTeam, (acc, match) => (acc + LeaderBoardService
+          .getPoints(match.homeTeamGoals, match.awayTeamGoals))),
+        totalVictories: this.getReduce(team.awayTeam, (acc, match) => (acc + LeaderBoardService
+          .getVictory(match.homeTeamGoals, match.awayTeamGoals))),
+        totalDraws: this.getReduce(team.awayTeam, (acc, match) => (acc + LeaderBoardService
+          .getDraw(match.homeTeamGoals, match.awayTeamGoals))),
+        totalLosses: this.getReduce(team.awayTeam, (acc, match) => (acc + LeaderBoardService
+          .getLoss(match.homeTeamGoals, match.awayTeamGoals))),
+        goalsFavor: team.awayTeam.reduce((acc, match) => acc + match.homeTeamGoals, 0),
+        goalsOwn: team.awayTeam.reduce((acc, match) => acc + match.awayTeamGoals, 0),
+        totalGames: team.awayTeam.length };
+    });
+  }
+
+  // static async leadBoard(homeOrAway: string): Promise<ILeaderBoardModel[]> {
+  //   const teams = await this.getTeams(homeOrAway);
+  //   return teams.map((team: teamsHomeOrAway) => {
+  //     if (team.homeTeam === undefined) throw new Error('homeTeam is undefined aqui');
+  //     return {
+  //       name: team.teamName,
+  //       totalPoints: this.getReduce(team.homeTeam, (acc, match) => (acc + LeaderBoardService
+  //         .getPoints(match.homeTeamGoals, match.awayTeamGoals))),
+  //       totalVictories: this.getReduce(team.homeTeam, (acc, match) => (acc + LeaderBoardService
+  //         .getVictory(match.homeTeamGoals, match.awayTeamGoals))),
+  //       totalDraws: this.getReduce(team.homeTeam, (acc, match) => (acc + LeaderBoardService
+  //         .getDraw(match.homeTeamGoals, match.awayTeamGoals))),
+  //       totalLosses: this.getReduce(team.homeTeam, (acc, match) => (acc + LeaderBoardService
+  //         .getLoss(match.homeTeamGoals, match.awayTeamGoals))),
+  //       goalsFavor: team.homeTeam.reduce((acc, match) => acc + match.homeTeamGoals, 0),
+  //       goalsOwn: team.homeTeam.reduce((acc, match) => acc + match.awayTeamGoals, 0),
+  //       totalGames: team.homeTeam.length };
+  //   });
+  // }
 
   static async getTeams(homeOrAway: string): Promise<Teams[]> {
     return Teams.findAll({
