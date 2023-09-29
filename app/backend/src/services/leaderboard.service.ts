@@ -1,158 +1,23 @@
 import Teams from '../database/models/Teams';
 import { ServiceResponse } from '../Interfaces/ServiceResponse';
 import Matches from '../database/models/Matches';
-import ImatchCreated from '../Interfaces/ImatchCreated';
+import UtilsLeaderboard, { teamsHomeOrAway } from '../utils/utilLeaderboard';
 
 // tenho que retornar um objeto com as propriedades do ILeaderBoardModel.
 //
 
-interface ILeaderBoardModel {
-  name: string;
-  totalPoints: number;
-  totalGames: number;
-  totalVictories: number;
-  totalDraws: number;
-  totalLosses: number;
-  goalsFavor: number;
-  goalsOwn: number;
-}
-
-type teamsHomeOrAway = {
-  id: number;
-  teamName: string;
-  homeTeam?: ImatchCreated[];
-  awayTeam?: ImatchCreated[];
-};
-
 export default class LeaderBoardService {
-  static async getLeaderBoard(homeOrAway: string): Promise<ServiceResponse<ILeaderBoardModel[]>> {
-    let teams: ILeaderBoardModel[] = [];
-    if (homeOrAway === 'home') {
-      teams = await this.getLeaderBoardHome();
-    } else {
-      teams = await this.getLeaderBoardAway();
-    }
-    return { status: 200, data: teams };
-  }
-
-  static async getLeaderBoardHome(): Promise<ILeaderBoardModel[]> {
-    const teams = await this.getTeams('home');
-    return teams.map((team: teamsHomeOrAway) => {
-      if (team.homeTeam === undefined) throw new Error('homeTeam is undefined');
-      return {
-        name: team.teamName,
-        totalPoints: this.getReduce(team.homeTeam, (acc, match) => (acc + LeaderBoardService
-          .getPoints(match.homeTeamGoals, match.awayTeamGoals))),
-        totalVictories: this.getReduce(team.homeTeam, (acc, match) => (acc + LeaderBoardService
-          .getVictory(match.homeTeamGoals, match.awayTeamGoals))),
-        totalDraws: this.getReduce(team.homeTeam, (acc, match) => (acc + LeaderBoardService
-          .getDraw(match.homeTeamGoals, match.awayTeamGoals))),
-        totalLosses: this.getReduce(team.homeTeam, (acc, match) => (acc + LeaderBoardService
-          .getLoss(match.homeTeamGoals, match.awayTeamGoals))),
-        goalsFavor: team.homeTeam.reduce((acc, match) => acc + match.homeTeamGoals, 0),
-        goalsOwn: team.homeTeam.reduce((acc, match) => acc + match.awayTeamGoals, 0),
-        totalGames: team.homeTeam.length };
-    });
-  }
-
-  static async getLeaderBoardAway(): Promise<ILeaderBoardModel[]> {
-    const teams = await this.getTeams('away');
-    return teams.map((team: teamsHomeOrAway) => {
-      if (team.awayTeam === undefined) throw new Error('homeTeam is undefined aqui');
-      return {
-        name: team.teamName,
-        totalPoints: this.getReduce(team.awayTeam, (acc, match) => (acc + LeaderBoardService
-          .getPoints(match.homeTeamGoals, match.awayTeamGoals))),
-        totalVictories: this.getReduce(team.awayTeam, (acc, match) => (acc + LeaderBoardService
-          .getVictory(match.homeTeamGoals, match.awayTeamGoals))),
-        totalDraws: this.getReduce(team.awayTeam, (acc, match) => (acc + LeaderBoardService
-          .getDraw(match.homeTeamGoals, match.awayTeamGoals))),
-        totalLosses: this.getReduce(team.awayTeam, (acc, match) => (acc + LeaderBoardService
-          .getLoss(match.homeTeamGoals, match.awayTeamGoals))),
-        goalsFavor: team.awayTeam.reduce((acc, match) => acc + match.homeTeamGoals, 0),
-        goalsOwn: team.awayTeam.reduce((acc, match) => acc + match.awayTeamGoals, 0),
-        totalGames: team.awayTeam.length };
-    });
-  }
-
-  // static async leadBoard(homeOrAway: string): Promise<ILeaderBoardModel[]> {
-  //   const teams = await this.getTeams(homeOrAway);
-  //   return teams.map((team: teamsHomeOrAway) => {
-  //     if (team.homeTeam === undefined) throw new Error('homeTeam is undefined aqui');
-  //     return {
-  //       name: team.teamName,
-  //       totalPoints: this.getReduce(team.homeTeam, (acc, match) => (acc + LeaderBoardService
-  //         .getPoints(match.homeTeamGoals, match.awayTeamGoals))),
-  //       totalVictories: this.getReduce(team.homeTeam, (acc, match) => (acc + LeaderBoardService
-  //         .getVictory(match.homeTeamGoals, match.awayTeamGoals))),
-  //       totalDraws: this.getReduce(team.homeTeam, (acc, match) => (acc + LeaderBoardService
-  //         .getDraw(match.homeTeamGoals, match.awayTeamGoals))),
-  //       totalLosses: this.getReduce(team.homeTeam, (acc, match) => (acc + LeaderBoardService
-  //         .getLoss(match.homeTeamGoals, match.awayTeamGoals))),
-  //       goalsFavor: team.homeTeam.reduce((acc, match) => acc + match.homeTeamGoals, 0),
-  //       goalsOwn: team.homeTeam.reduce((acc, match) => acc + match.awayTeamGoals, 0),
-  //       totalGames: team.homeTeam.length };
-  //   });
-  // }
-
-  static async getTeams(homeOrAway: string): Promise<Teams[]> {
-    return Teams.findAll({
+  static async getLeaderBoard(homeOrAway: string): Promise<ServiceResponse<unknown>> {
+    const teams = await Teams.findAll({
       include: [{ model: Matches, as: `${homeOrAway}Team`, where: { inProgress: false } }],
     });
-  }
-
-  static getReduce<T>(array: T[], callback: (acc: number, match: T) => number): number {
-    return array.reduce((acc, match) => callback(acc, match), 0);
-  }
-
-  static getPoints(goals: number, goalsAgainst: number): number {
-    if (goals > goalsAgainst) return 3;
-    if (goals === goalsAgainst) return 1;
-    return 0;
-  }
-
-  static getVictory(goals: number, goalsAgainst: number): number {
-    if (goals > goalsAgainst) return 1;
-    return 0;
-  }
-
-  static getDraw(goals: number, goalsAgainst: number): number {
-    if (goals === goalsAgainst) return 1;
-    return 0;
-  }
-
-  static getLoss(goals: number, goalsAgainst: number): number {
-    if (goals < goalsAgainst) return 1;
-    return 0;
+    // ajeitar as tipagens do teams
+    const allBoards = teams.map((team: teamsHomeOrAway) => {
+      const homeAway = homeOrAway === 'home' ? team.homeTeam : team.awayTeam;
+      if (homeAway === undefined) throw new Error('homeAway is undefined');
+      const intancesLeaderboard = new UtilsLeaderboard();
+      return intancesLeaderboard.applicationMethods(homeAway, team.teamName);
+    });
+    return { status: 200, data: allBoards };
   }
 }
-
-// const totalPoints = team.homeTeam.reduce((acc, match) => {
-//   const points = LeaderBoardService.getPoints(match[`${homeOrAway}Team`].goals, match[`${homeOrAway}Team`].goalsAgainst);
-//   return acc + points;
-// }, 0);
-// const totalVictories = team.homeTeam.reduce((acc, match) => {
-//   const victory = LeaderBoardService.getVictory(match[`${homeOrAway}Team`].goals, match[`${homeOrAway}Team`].goalsAgainst);
-//   return acc + victory;
-// }, 0);
-// const totalDraws = team.homeTeam.reduce((acc, match) => {
-//   const draw = LeaderBoardService.getDraw(match[`${homeOrAway}Team`].goals, match[`${homeOrAway}Team`].goalsAgainst);
-//   return acc + draw;
-// }, 0);
-// const totalLosses = team.homeTeam.reduce((acc, match) => {
-//   const loss = LeaderBoardService.getLoss(match[`${homeOrAway}Team`].goals, match[`${homeOrAway}Team`].goalsAgainst);
-//   return acc + loss;
-// }, 0);
-// const goalsFavor = team.homeTeam.reduce((acc, match) => acc + match[`${homeOrAway}Team`].goals, 0);
-// const goalsOwn = team.homeTeam.reduce((acc, match) => acc + match[`${homeOrAway}Team`].goalsAgainst, 0);
-// const totalGames = totalVictories + totalDraws + totalLosses;
-// return {
-//   name: team.name,
-//   totalPoints,
-//   totalGames,
-//   totalVictories,
-//   totalDraws,
-//   totalLosses,
-//   goalsFavor,
-//   goalsOwn,
-// };
