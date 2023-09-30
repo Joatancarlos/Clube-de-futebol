@@ -44,9 +44,10 @@ export default class MatchesService {
     const match = await this.model.findByPk(id);
     if (!match) return { status: 404, data: { message: 'Partida não encontrada' } };
     if (!match.inProgress) return { status: 400, data: { message: 'Partida já finalizada' } };
-    match.homeTeamGoals = homeTeamGoals;
-    match.awayTeamGoals = awayTeamGoals;
-    await match.save();
+    await this.model.update({
+      homeTeamGoals,
+      awayTeamGoals,
+    }, { where: { id } });
     return { status: 200, data: { message: 'Updated' } };
   }
 
